@@ -1,4 +1,7 @@
-⚠️ *_In heavy development. No support provided. There is an high chance that this will crash weechat and/or it doesn't work_* ⚠️
+This is a fork from https://github.com/c3r34lk1ll3r/weebase
+
+⚠️ *_In heavy development. No support provided. There is an high chance
+that this will crash weechat and/or it doesn't work_* ⚠️
 
 # weebase
 Plugin for integrate _keybase_ in _weechat_.
@@ -20,4 +23,8 @@ Copy the python file in weechat plugin folder (for example `~/.weechat/python/`)
 - `\open <msgID>`: Download and open an attachment (with `xdg-open`)
 
 ## NOTE
-This plugin is in really alpha stage. Can crash or hang weechat. There are a lot of work to do and a lot of testing. There are a lot of missing features (like storing history, delete messages, upload attacchment, all the teams management, ecc.) and a lot of bugs. Use it at your risk.
+This plugin is in really alpha stage. Can crash or hang weechat. There
+are a lot of work to do and a lot of testing. There are a lot of
+missing features (like storing history, delete messages, upload
+attacchment, all the teams management, ecc.) and a lot of bugs. Use it
+at your risk.

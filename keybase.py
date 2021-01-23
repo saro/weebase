@@ -135,14 +135,18 @@ def handle_message(msg):
     #elif content == 'reaction':
     #    reaction = msg['content']['reaction'] 
     elif content == 'delete':
-        body = sender+'\t'+weechat.color("*red")+"deleted message(s) "+str(msg['content']['delete']['messageIDs'])
+        body = sender+'\t'+weechat.color("*red")+"DELETE: "+str(msg['content']['delete']['messageIDs'])
     elif content == 'edit':
         edit = msg['content']['edit']
-        body = sender+'\t'+weechat.color("*red")+"edit message "+str(edit['messageID'])+" with: \'"+edit['body']+"\'"
+        body = sender+'\t'+weechat.color("*red")+"EDIT: "+str(edit['messageID'])+" with: \'"+edit['body']+"\'"
     elif content == 'metadata':
         body = sender+'\t'+"Metadata: Conversation Title: "+msg['content']['metadata']['conversationTitle']
     elif content == 'attachment':
-        body = sender+"\t"+weechat.color("_lightgreen")+"sent an attachment. Use /download "+str(id)+" <output>"
+        filename = msg['content']['attachment']['object']['filename']
+        mimetype = msg['content']['attachment']['object']['mimeType']
+        title = msg['content']['attachment']['object']['title']
+        size = msg['content']['attachment']['object']['size']
+        body = sender+"\t"+weechat.color("*green")+"ATTACH: " + title + " <"+filename+"> ("+ mimetype +" "+ str(size) +"B)  >> /download "+str(id)+" <output>"
     #elif content == 'pin':
     #    body = sender+'\t'+weechat.color("_lightgreen")+"has pinned message "+str(id)
     else:
@@ -314,20 +318,26 @@ class status_server:
         channel = msg['channel']
         name = channel['name']
 
-        if channel['members_type'] == 'impteamnative':
+        if channel['members_type'] == 'impteamnative' or channel['members_type'] == 'impteamupgrade':
             ## We don't want to replicate our username
             name_splitted = name.split(',')
             ## We can send message to ourself
             if len(name_splitted) == 1:
                 buff_name = name
+            elif len(name_splitted) == 2:
+                if name_splitted[0] == self.nickname:
+                    buff_name = name_splitted[1];
+                else:
+                    buff_name = name_splitted[0];
             else:
-                buff_name = ",".join(name_splitted[1:])
+                # buff_name = ",".join(name_splitted[1:])
+                buff_name = channel['name']
             ty="private"
         elif channel['members_type'] == 'team':
             buff_name = channel['name']+"#"+channel['topic_name']
             ty="channel"
         else:
-            buff_name ="un::"+channel['member_type']
+            buff_name = "un::"+channel['members_type']
             ty="private"
         buff = weechat.buffer_new(buff_name, "private_input_cb", conv_id, "private_close_cb", conv_id)
         weechat.prnt("", "buffer!"+str(buff));
