@@ -325,7 +325,7 @@ class status_server:
             if len(name_splitted) == 1:
                 buff_name = name
             elif len(name_splitted) == 2:
-                if name_splitted[0] == self.nickname:
+                if name_splitted[0] == self.nick_name:
                     buff_name = name_splitted[1];
                 else:
                     buff_name = name_splitted[0];
