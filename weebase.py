@@ -132,8 +132,10 @@ def handle_message(msg):
         body = sender+'\t'+msg_body
     #elif content == 'unfurl':
     #    body = sender+'\t'+
-    #elif content == 'reaction':
-    #    reaction = msg['content']['reaction'] 
+    elif content == 'reaction':
+        reaction = msg['content']['reaction']['b']
+        message_id = msg['content']['reaction']['m']
+        body = sender+'\t'+weechat.color("*lightmagenta") + reaction + " for [" + str(message_id) + "]"
     elif content == 'delete':
         body = sender+'\t'+weechat.color("*red")+"DELETE: "+str(msg['content']['delete']['messageIDs'])
     elif content == 'edit':
@@ -153,6 +155,29 @@ def handle_message(msg):
         body = weechat.color("*red")+str(msg)
     return date,body,msg['id']
 
+def reply_message_buffer(data, buffer, arg):
+    args = arg.split(' ')
+    if len(args) < 2:
+        return weechat.WEECHAT_RC_ERROR
+    conv_id = weechat.buffer_get_string(buffer, "localvar_conversation_id")
+    api = {"method": "send", "params": {"options": {"conversation_id": conv_id, "message": {"body": " ".join(args[1:])}, "reply_to": int(args[0])}}}
+    r=status.execute_api(api)
+    return weechat.WEECHAT_RC_OK
+
+def attach_file(data, buffer, arg):
+    args = arg.split(' ')
+    if len(args) < 1:
+        return weechat.WEECHAT_RC_ERROR
+    elif len(args) > 1:
+        title = " ".join(args[1:])
+    else:
+        title = args[0]
+    conv_id = weechat.buffer_get_string(buffer, "localvar_conversation_id")
+    api = {"method": "attach", "params": {"options": {"conversation_id": conv_id, "filename": args[0], "title": title}}}
+    ## CHECK r
+    r=status.execute_api(api)
+    return weechat.WEECHAT_RC_OK
+
 def open_attachment(data, buffer, arg):
     if arg == "":
         return weechat.WEECHAT_RC_ERROR
@@ -164,7 +189,6 @@ def open_attachment(data, buffer, arg):
     r=status.execute_api(api)
     subprocess.Popen(['xdg-open',tmp_file[1]],close_fds=True)
     return weechat.WEECHAT_RC_OK
-
 
 def download_message(data, buffer, arg):
     args = arg.split(' ')
@@ -263,6 +287,8 @@ class status_server:
                                                     {"buffer_flush":"1"},0,"start_reading","")
         weechat.hook_command("download", "Download an attachment", "<msg_id> <outputh_path>", "<msg_id>: ID of the message\n<output_path>: Path to store file", "", "download_message", "") 
         weechat.hook_command("open", "Open (with default application) an attachment", "<msg_id>", "<msg_id>: ID of the message\n", "", "open_attachment", "") 
+        weechat.hook_command("attach", "Upload file to conversation", "<filename>", "<filename>: File to upload\n", "", "attach_file", "") 
+        weechat.hook_command("re", "Reply to message", "<msg_id> <reply_message>", "asdasd", "", "reply_message_buffer", "") 
         ## Hooking to classic weechat command
         weechat.hook_command_run("/msg","send_new_message","") 
         weechat.hook_command_run("/reply", "reply_to_message", "")
@@ -377,7 +403,7 @@ class status_server:
 
 # =================================[ Main ]================================== {{{
 if __name__ == "__main__":
-    weechat.register("weebase", "c3r34lk1ll3r", "0.5", "GPL3", "Keybase plugin", "", "")
+    weechat.register("weebase", "saro", "0.0.1", "GPL3", "Keybase plugin", "", "")
     script_options = {
     "nickname": "",
     "debug": "true",

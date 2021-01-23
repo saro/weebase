@@ -21,6 +21,8 @@ Copy the python file in weechat plugin folder (for example `~/.weechat/python/`)
 - `\msg <sendto> <body>`: Sends a message to a nick
 - `\download <msgID> <output>`: Download an attachment.
 - `\open <msgID>`: Download and open an attachment (with `xdg-open`)
+- `\re <msgID> <text>`: Reply to message wiwth specific `msgID`
+- `\attach <filename> <title>`: Download and open an attachment (with `xdg-open`)
 
 ## NOTE
 This plugin is in really alpha stage. Can crash or hang weechat. There
