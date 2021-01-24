@@ -7,7 +7,9 @@ that this will crash weechat and/or it doesn't work_* ⚠️
 Plugin for integrate _keybase_ in _weechat_.
 
 ## Installation
-Copy the python file in weechat plugin folder (for example `~/.weechat/python/`) and load it from weechat (`/python load keybase.py`)
+Copy the python file in weechat plugin folder (for example
+`~/.weechat/python/`) and load it from weechat (`/python load
+weebase.py`)
 
 ## Requirements
 - `kebase`: This plugin is simply a wrapper for `keybase` CLI.
@@ -21,12 +23,13 @@ Copy the python file in weechat plugin folder (for example `~/.weechat/python/`)
 - `\msg <sendto> <body>`: Sends a message to a nick
 - `\download <msgID> <output>`: Download an attachment.
 - `\open <msgID>`: Download and open an attachment (with `xdg-open`)
-- `\re <msgID> <text>`: Reply to message wiwth specific `msgID`
+- `\re <msgID> <text>`: Reply to message with `msgID`
 - `\attach <filename> <title>`: Download and open an attachment (with `xdg-open`)
+- `\delete <msgID>`: Remove message with `msgID`
 
 ## NOTE
 This plugin is in really alpha stage. Can crash or hang weechat. There
 are a lot of work to do and a lot of testing. There are a lot of
-missing features (like storing history, delete messages, upload
-attacchment, all the teams management, ecc.) and a lot of bugs. Use it
+missing features (like storing history, ~~delete messages~~, ~~upload
+attacchment~~, all the teams management, ecc.) and a lot of bugs. Use it
 at your risk.

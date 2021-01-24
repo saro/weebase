@@ -122,13 +122,20 @@ def handle_message(msg):
         body = handle_system_message(msg)
     elif content == 'text':
         text = msg['content']['text']
-        msg_body = text['body'].replace('\t',"    ")
+
+        re_header = ""
+        if "replyTo" in text.keys():
+            re_header = weechat.color("*lightmagenta") + "RE[" + str(text["replyTo"]) +"]: " + weechat.color("reset")
+
+        msg_body = re_header + text['body'].replace('\t',"    ")
+
         ## Mention username
         user_mention =  text['userMentions']
         if user_mention != None:
             for user in user_mention:
                 msg_body = msg_body.replace('@'+user['text'],weechat.color("*red")+'@'+user['text']+weechat.color("reset"))
                 #if user['text'] == self.nick --> PRIORITY
+
         body = sender+'\t'+msg_body
     #elif content == 'unfurl':
     #    body = sender+'\t'+
@@ -143,12 +150,15 @@ def handle_message(msg):
         body = sender+'\t'+weechat.color("*red")+"EDIT: "+str(edit['messageID'])+" with: \'"+edit['body']+"\'"
     elif content == 'metadata':
         body = sender+'\t'+"Metadata: Conversation Title: "+msg['content']['metadata']['conversationTitle']
+    elif content == 'headline':
+        headline = msg['content']['headline']['headline']
+        body = sender + '\t' + weechat.color("*lightmagenta") + "HEADLINE: " + headline
     elif content == 'attachment':
         filename = msg['content']['attachment']['object']['filename']
         mimetype = msg['content']['attachment']['object']['mimeType']
         title = msg['content']['attachment']['object']['title']
         size = msg['content']['attachment']['object']['size']
-        body = sender+"\t"+weechat.color("*green")+"ATTACH: " + title + " <"+filename+"> ("+ mimetype +" "+ str(size) +"B)  >> /download "+str(id)+" <output>"
+        body = sender+"\t"+weechat.color("*green")+"FILE: " + title + " <"+filename+"> ("+ mimetype +" "+ str(size) +" B)  "+weechat.color("*magenta")+" /download "+str(id)+" <output>"
     #elif content == 'pin':
     #    body = sender+'\t'+weechat.color("_lightgreen")+"has pinned message "+str(id)
     else:
@@ -161,6 +171,15 @@ def reply_message_buffer(data, buffer, arg):
         return weechat.WEECHAT_RC_ERROR
     conv_id = weechat.buffer_get_string(buffer, "localvar_conversation_id")
     api = {"method": "send", "params": {"options": {"conversation_id": conv_id, "message": {"body": " ".join(args[1:])}, "reply_to": int(args[0])}}}
+    r=status.execute_api(api)
+    return weechat.WEECHAT_RC_OK
+
+def delete_message_buffer(data, buffer, arg):
+    args = arg.split(' ')
+    if len(args) != 1:
+        return weechat.WEECHAT_RC_ERROR
+    conv_id = weechat.buffer_get_string(buffer, "localvar_conversation_id")
+    api = {"method": "delete", "params": {"options": {"conversation_id": conv_id, "message_id": int(args[0])}}}
     r=status.execute_api(api)
     return weechat.WEECHAT_RC_OK
 
@@ -288,7 +307,8 @@ class status_server:
         weechat.hook_command("download", "Download an attachment", "<msg_id> <outputh_path>", "<msg_id>: ID of the message\n<output_path>: Path to store file", "", "download_message", "") 
         weechat.hook_command("open", "Open (with default application) an attachment", "<msg_id>", "<msg_id>: ID of the message\n", "", "open_attachment", "") 
         weechat.hook_command("attach", "Upload file to conversation", "<filename>", "<filename>: File to upload\n", "", "attach_file", "") 
-        weechat.hook_command("re", "Reply to message", "<msg_id> <reply_message>", "asdasd", "", "reply_message_buffer", "") 
+        weechat.hook_command("re", "Reply to message", "<msg_id> <reply_message>", "<msg_id>: ID of the message to which reply\n<reply_message>: reply", "", "reply_message_buffer", "") 
+        weechat.hook_command("delete", "Delete message", "<msg_id>", "<msg_id>: ID of the message to which reply", "", "delete_message_buffer", "") 
         ## Hooking to classic weechat command
         weechat.hook_command_run("/msg","send_new_message","") 
         weechat.hook_command_run("/reply", "reply_to_message", "")
